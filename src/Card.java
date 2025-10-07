@@ -1,7 +1,4 @@
-/**
- * Immutable class representing a playing card with a denomination.
- * Thread-safe by design due to immutability.
- */
+
 public class Card {
     private final int denomination;
     
