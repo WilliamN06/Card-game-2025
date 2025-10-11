@@ -30,4 +30,8 @@ public class Card {
     public int hashCode() {
         return Integer.hashCode(denomination);
     }
+    
+    public int getDenomination(){
+        return denomination;
+    }
 }
