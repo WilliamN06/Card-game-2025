@@ -49,27 +49,31 @@ public class Player extends Thread {
 
             while (!gameController.isGameOver()) {
                 // Draw card
-                Card drawn = leftDeck.draw();
-                if (drawn == null) continue; // deck empty, retry
+               synchronized (leftDeck) {
+                synchronized (rightDeck) {
+                        // now you own both locks, no other thread can touch them
+                           Card drawn = leftDeck.draw();
+                        if (drawn == null) return; // if deck empty, skip safely
 
-                hand.add(drawn);
-                log.println("player " + id + " draws a " + drawn.getValue() + " from deck " + leftDeck.getId());
+                        hand.add(drawn);
+                        log.println("player " + id + " draws a " + drawn.getValue() + " from deck " + leftDeck.getId());
 
-                // Choose discard
-                Card discard = selectDiscard();
-                hand.remove(discard);
-                rightDeck.addCard(discard);
-                log.println("player " + id + " discards a " + discard.getValue() + " to deck " + rightDeck.getId());
-                log.println("player " + id + " current hand is " + handToString());
-                log.flush();
+                        // Choose and discard
+                        Card discard = selectDiscard();
+                        hand.remove(discard);
+                        rightDeck.addCard(discard);
 
-                // Check for win
-                if (hasWinningHand()) {
-                    gameController.declareWinner(id);
-                    break;
-                }
+                        log.println("player " + id + " discards a " + discard.getValue() + " to deck " + rightDeck.getId());
+                        log.println("player " + id + " current hand is " + handToString());
+                        log.flush();
 
-                Thread.sleep(10); // avoid aggressive spinning
+                        // Check win
+                        if (hasWinningHand()) {
+                            game.declareWinner(id);
+                        }
+                    }
+}
+                //Thread.sleep(10); // added to avoid aggressive spinning decide to keep or remove
             }
 
             if (gameController.getWinnerId() == id)
