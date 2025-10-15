@@ -1,11 +1,11 @@
 import java.util.LinkedList;
 import java.util.Queue;
 
-public class Deck {
+public class CardDeck {
     private final int id;
     private final Queue<Card> cards = new LinkedList<>();
 
-    public Deck(int id) {
+    public CardDeck(int id) {
         this.id = id;
     }
 
@@ -23,7 +23,7 @@ public class Deck {
 
     public synchronized String getContentsString() {
         StringBuilder sb = new StringBuilder("deck" + id + " contents: ");
-        for (Card c : cards) sb.append(c.getValue()).append(" ");
+        for (Card c : cards) sb.append(c.getDenomination()).append(" ");
         return sb.toString().trim();
     }
 

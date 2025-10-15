@@ -7,7 +7,7 @@ public class CardGame {
     private volatile int winnerId = -1;
 
     private final List<Player> players = new ArrayList<>();
-    private final List<Deck> decks = new ArrayList<>();
+    private final List<CardDeck> decks = new ArrayList<>();
 
     public static void main(String[] args) {
         CardGame game = new CardGame();
@@ -90,13 +90,13 @@ public class CardGame {
     private void initialiseGame(int n, List<Card> pack) throws IOException {
         // Create decks
         for (int i = 1; i <= n; i++) {
-            decks.add(new Deck(i));
+            decks.add(new CardDeck(i));
         }
 
         // Create players and link decks in ring topology
         for (int i = 1; i <= n; i++) {
-            Deck left = decks.get(i - 1);
-            Deck right = decks.get(i % n);
+            CardDeck left = decks.get(i - 1);
+            CardDeck right = decks.get(i % n);
             Player p = new Player(i, left, right, this);
             players.add(p);
         }
@@ -108,18 +108,25 @@ public class CardGame {
     private void distributeInitialHands(int n, List<Card> pack) throws IOException {
         Iterator<Card> it = pack.iterator();
 
-        // Give 4 cards to each player (round-robin)
+        // Create lists for each player first
+        List<List<Card>> playerHands = new ArrayList<>();
+        for (int i = 0; i < players.size(); i++) {
+            playerHands.add(new ArrayList<>());
+        }
+
+        // Round-robin distribution: deal one card to each player in sequence, 4 times
         for (int round = 0; round < 4; round++) {
-            for (Player p : players) {
+            for (int i = 0; i < players.size(); i++) {
                 if (!it.hasNext()) throw new IllegalStateException("Insufficient cards");
-                p.addCard(it.next());
+                playerHands.get(i).add(it.next());  // Add one card to each player's list
             }
         }
 
-        // Log initial hands
-        for (Player p : players) {
-            p.logInitialHand();
+        // Now set the initial hands for all players
+        for (int i = 0; i < players.size(); i++) {
+            players.get(i).setInitialHand(playerHands.get(i));
         }
+
 
         // Fill decks with remaining cards
         int deckIndex = 0;
@@ -146,7 +153,7 @@ public class CardGame {
     }
 
     private void writeDeckOutputs() {
-        for (Deck d : decks) {
+        for (CardDeck d : decks) {
             try (PrintWriter pw = new PrintWriter(new FileWriter("deck" + d.getId() + "_output.txt"))) {
                 pw.println(d.getContentsString());
             } catch (IOException e) {
