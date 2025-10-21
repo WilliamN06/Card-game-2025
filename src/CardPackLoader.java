@@ -15,12 +15,12 @@ public class CardPackLoader {
      * @return List of Card objects representing the pack
      * @throws IOException If file cannot be read or is invalid
      */
-    public static List<Card> loadPack(String filename, int numberOfPlayers) throws IOException {
+    public static List<Card> loadPack(File file, int numberOfPlayers) throws IOException {
         if (numberOfPlayers <= 0) {
             throw new IllegalArgumentException("Number of players must be positive");
         }
         
-        File file = new File(filename);
+        String filename = file.getName();;
         if (!file.exists()) {
             throw new FileNotFoundException("Pack file not found: " + filename);
         }

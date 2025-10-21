@@ -5,6 +5,7 @@ import java.util.*;
 public class CardGame {
     private volatile boolean gameOver = false;
     private volatile int winnerId = -1;
+    private CardPackLoader loader = new CardPackLoader();
 
     private final List<Player> players = new ArrayList<>();
     private final List<CardDeck> decks = new ArrayList<>();
@@ -19,7 +20,7 @@ public class CardGame {
         try (Scanner sc = new Scanner(System.in)) {
             int numPlayers = getNumberOfPlayers(sc);
             File packFile = getPackFile(sc);
-            List<Card> pack = loadPack(packFile, numPlayers);
+            List<Card> pack = loader.loadPack(packFile, numPlayers);
 
             if (pack == null) {
                 System.out.println("Invalid pack. Game aborted.");
@@ -44,6 +45,7 @@ public class CardGame {
             System.out.print("Enter number of players: ");
             if (sc.hasNextInt()) {
                 n = sc.nextInt();
+                sc.nextLine();
                 if (n > 0) break;
             } else sc.next();
             System.out.println("Invalid input. Please enter a positive integer.");
@@ -53,10 +55,17 @@ public class CardGame {
 
     private File getPackFile(Scanner sc) {
         File file;
+        // add excpetion or such
         while (true) {
             System.out.print("Enter path to pack file: ");
-            String path = sc.next();
+            String path = sc.nextLine().trim();
             file = new File(path);
+                    // Debug information
+            System.out.println("Input path: '" + path + "'");
+            System.out.println("Absolute path: " + file.getAbsolutePath());
+            System.out.println("Exists: " + file.exists());
+            System.out.println("Can read: " + file.canRead());
+            System.out.println("Is file: " + file.isFile());
             if (file.exists() && file.canRead()) break;
             System.out.println("Invalid path. Please enter a valid file path.");
         }
