@@ -21,6 +21,10 @@ public class Player extends Thread {
                 this.log = new PrintWriter(new BufferedWriter(new FileWriter("player" + id + "_output.txt")));
         }
 
+        public List<Card> getHand() {
+                return hand;
+        }
+
         public void setInitialHand(List<Card> cards) {
                 hand.clear();
                 hand.addAll(cards);

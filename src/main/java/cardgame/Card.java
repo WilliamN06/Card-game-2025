@@ -1,7 +1,7 @@
 package cardgame;
 
 public class Card {
-        private final int denomination;
+        public final int denomination;
 
         public Card(int denomination) {
                 if (denomination < 0) {

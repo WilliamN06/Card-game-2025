@@ -45,6 +45,18 @@
                         <targetTest>cardgame.*Test</targetTest>
                     </targetTests>
                 </configuration>
+
+
+		<executions>
+		    <execution>
+			<id>pit-report</id>
+			<!-- optional, this example attached the goal into mvn test phase -->
+			<phase>test</phase>
+			<goals>
+			    <goal>mutationCoverage</goal>
+			</goals>
+		    </execution>
+		</executions>
             </plugin>
         </plugins>
     </build>

@@ -1,11 +1,13 @@
 package cardgame;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
 public class CardDeck {
-        private final int id;
-        private final Queue<Card> cards = new LinkedList<>();
+        public final int id;
+        public final Queue<Card> cards = new LinkedList<>();
 
         public CardDeck(int id) {
                 this.id = id;
@@ -28,6 +30,10 @@ public class CardDeck {
                 for (Card c : cards)
                         sb.append(c.getDenomination()).append(" ");
                 return sb.toString().trim();
+        }
+
+        public List<Card> getContents() {
+                return new ArrayList<>(cards);
         }
 
         public int getId() {

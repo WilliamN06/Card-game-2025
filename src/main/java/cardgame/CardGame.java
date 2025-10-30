@@ -4,12 +4,12 @@ import java.io.*;
 import java.util.*;
 
 public class CardGame {
-        private volatile boolean gameOver = false;
-        private volatile int winnerId = -1;
-        private CardPackLoader loader = new CardPackLoader();
+        public volatile boolean gameOver = false;
+        public volatile int winnerId = -1;
+        public CardPackLoader loader = new CardPackLoader();
 
-        private final List<Player> players = new ArrayList<>();
-        private final List<CardDeck> decks = new ArrayList<>();
+        public final List<Player> players = new ArrayList<>();
+        public final List<CardDeck> decks = new ArrayList<>();
 
         public static void main(String[] args) {
                 CardGame game = new CardGame();
@@ -119,6 +119,10 @@ public class CardGame {
 
         public void distributeInitialHands(int n, List<Card> pack) throws IOException {
                 Iterator<Card> it = pack.iterator();
+                int requiredCards = players.size() * 4;
+                if (pack.size() < requiredCards) {
+                        throw new IllegalStateException("Not enough cards in deck");
+                }
 
                 // Create lists for each player first
                 List<List<Card>> playerHands = new ArrayList<>();
