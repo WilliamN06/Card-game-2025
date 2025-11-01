@@ -61,12 +61,6 @@ public class CardGame {
                         System.out.print("Enter path to pack file: ");
                         String path = sc.nextLine().trim();
                         file = new File(path);
-                        // Debug information
-                        System.out.println("Input path: '" + path + "'");
-                        System.out.println("Absolute path: " + file.getAbsolutePath());
-                        System.out.println("Exists: " + file.exists());
-                        System.out.println("Can read: " + file.canRead());
-                        System.out.println("Is file: " + file.isFile());
                         if (file.exists() && file.canRead())
                                 break;
                         System.out.println("Invalid path. Please enter a valid file path.");
