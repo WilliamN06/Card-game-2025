@@ -10,7 +10,7 @@ public class Player extends Thread {
         public final CardDeck leftDeck;
         public final CardDeck rightDeck;
         public final CardGame gameController;
-        public final PrintWriter log;
+        public PrintWriter log;
 
         public Player(int id, CardDeck left, CardDeck right, CardGame controller) throws IOException {
                 this.id = id;
@@ -18,8 +18,10 @@ public class Player extends Thread {
                 this.leftDeck = left;
                 this.rightDeck = right;
                 this.gameController = controller;
-                this.log = new PrintWriter(new BufferedWriter(new FileWriter("player" + id + "_output.txt")));
+                this.log = new PrintWriter(new BufferedWriter(new FileWriter("player" + id + "_output.txt")), true);
+
         }
+        
 
         public List<Card> getHand() {
                 return hand;
@@ -28,7 +30,7 @@ public class Player extends Thread {
         public void setInitialHand(List<Card> cards) {
                 hand.clear();
                 hand.addAll(cards);
-                log.println("player " + id + " initial hand " + handToString());
+                //log.println("player " + id + " initial hand " + handToString());
         }
 
         public String handToString() {
@@ -51,6 +53,8 @@ public class Player extends Thread {
         @Override
         public void run() {
                 try {
+                        log.println("player " + id + " initial hand is " + handToString());
+
                         // Check if won immediately
                         if (hasWinningHand()) {
                                 gameController.declareWinner(id);
@@ -117,4 +121,6 @@ public class Player extends Thread {
 
                 return nonPreferred.get(new Random().nextInt(nonPreferred.size()));
         }
+
+
 }
