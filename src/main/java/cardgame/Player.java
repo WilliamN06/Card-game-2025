@@ -60,40 +60,54 @@ public class Player extends Thread {
                                 gameController.declareWinner(id);
                                 return;
                         }
+                            CardDeck firstLock = (leftDeck.getId() < rightDeck.getId()) ? leftDeck : rightDeck;
+                            CardDeck secondLock = (leftDeck.getId() < rightDeck.getId()) ? rightDeck : leftDeck;
 
-                        while (!gameController.isGameOver()) {
-                                // Draw card
-                                synchronized (leftDeck) {
-                                        synchronized (rightDeck) {
-                                                // now you own both locks, no other thread can touch them
-                                                Card drawn = leftDeck.draw();
-                                                if (drawn == null)
-                                                        return; // if deck empty, skip safely
-
-                                                hand.add(drawn);
-                                                log.println("player " + id + " draws a " + drawn.getDenomination()
-                                                                + " from deck " + leftDeck.getId());
-
-                                                // Choose and discard
-                                                Card discard = selectDiscard();
-                                                hand.remove(discard);
-                                                rightDeck.addCard(discard);
-
-                                                log.println("player " + id + " discards a " + discard.getDenomination()
-                                                                + " to deck " + rightDeck.getId());
-                                                log.println("player " + id + " current hand is " + handToString());
-                                                log.flush();
-
-                                                // Check win
-                                                if (hasWinningHand()) {
-                                                        gameController.declareWinner(id);
-                                                }
+                            while (!gameController.isGameOver()) {
+                                // Check game state BEFORE acquiring locks
+                                if (gameController.isGameOver()) break;
+                                
+                                Card drawn = null;
+                                Card discarded = null;
+    
+                                // Atomic operation: draw + discard
+                                synchronized(firstLock) {
+                                    synchronized(secondLock) {
+                                        if (leftDeck.isEmpty()) {
+                                            continue; 
                                         }
+                                        
+                                        drawn = leftDeck.draw();
+                                        if (drawn == null) {
+                                            continue;
+                                        }
+            
+                                    hand.add(drawn);
+                                    discarded = selectDiscard();
+                                    
+                                    if (discarded == null) {
+                                        leftDeck.addCard(drawn);
+                                        hand.remove(drawn);
+                                        continue;
+                                    }
+            
+                                    hand.remove(discarded);
+                                    rightDeck.addCard(discarded);
+            
+                                    log.println("player " + id + " draws a " + drawn.getDenomination() + " from deck " + leftDeck.getId());
+                                    log.println("player " + id + " discards a " + discarded.getDenomination() + " to deck " + rightDeck.getId());
+                                    log.println("player " + id + " current hand is " + handToString());
+                                    log.flush();
                                 }
-                                // Thread.sleep(10); // added to avoid aggressive spinning decide to keep or
-                                // remove
+                            }
+    
+                            // Check win condition AFTER releasing locks
+                            if (hasWinningHand()) {
+                                gameController.declareWinner(id);
+                            }
+                            
+                            // Thread.sleep(10); // Good for performance, keep it
                         }
-
                         if (gameController.getWinnerId() == id)
                                 log.println("player " + id + " wins");
                         else
