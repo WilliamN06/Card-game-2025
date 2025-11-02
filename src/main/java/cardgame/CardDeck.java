@@ -4,10 +4,15 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.TimeUnit;
+
 
 public class CardDeck {
         public final int id;
         public final Queue<Card> cards = new LinkedList<>();
+        private final Lock lock = new ReentrantLock(true); 
 
         public CardDeck(int id) {
                 this.id = id;
@@ -32,11 +37,18 @@ public class CardDeck {
                 return sb.toString().trim();
         }
 
-        public List<Card> getContents() {
+        public synchronized List<Card> getContents() {
                 return new ArrayList<>(cards);
         }
 
         public int getId() {
                 return id;
         }
+        public boolean tryLock(long timeout, TimeUnit unit) throws InterruptedException {
+                return lock.tryLock(timeout, unit);
+    }
+
+       public void unlock() {
+        lock.unlock();
+    }
 }
