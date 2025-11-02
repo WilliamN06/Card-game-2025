@@ -8,11 +8,10 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.TimeUnit;
 
-
 public class CardDeck {
         public final int id;
         public final Queue<Card> cards = new LinkedList<>();
-        private final Lock lock = new ReentrantLock(true); 
+        public final ReentrantLock lock = new ReentrantLock(true);
 
         public CardDeck(int id) {
                 this.id = id;
@@ -44,11 +43,12 @@ public class CardDeck {
         public int getId() {
                 return id;
         }
+
         public boolean tryLock(long timeout, TimeUnit unit) throws InterruptedException {
                 return lock.tryLock(timeout, unit);
-    }
+        }
 
-       public void unlock() {
-        lock.unlock();
-    }
+        public void unlock() {
+                lock.unlock();
+        }
 }

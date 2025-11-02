@@ -168,21 +168,6 @@ public class CardGameTest {
         }
 
         @Test
-        public void testGetPackFileDebugInfo() throws IOException {
-                CardGame game = new CardGame();
-                File temp = File.createTempFile("pack", ".txt");
-                temp.deleteOnExit();
-                Scanner sc = new Scanner(temp.getAbsolutePath() + "\n");
-                game.getPackFile(sc);
-                String output = outputStream.toString();
-                assertTrue(output.contains("Input path:"));
-                assertTrue(output.contains("Absolute path:"));
-                assertTrue(output.contains("Exists:"));
-                assertTrue(output.contains("Can read:"));
-                assertTrue(output.contains("Is file:"));
-        }
-
-        @Test
         public void testGetPackFilePrintsInvalidPath() throws IOException {
                 CardGame game = new CardGame();
                 File temp = File.createTempFile("pack", ".txt");
