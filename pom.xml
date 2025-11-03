@@ -32,7 +32,7 @@
 
     <build>
         <plugins>
-            <!-- PIT Mutation Testing Plugin -->
+            <!-- PIT Mutation Testing Plugin (keep your config here) -->
             <plugin>
                 <groupId>org.pitest</groupId>
                 <artifactId>pitest-maven</artifactId>
@@ -45,18 +45,53 @@
                         <targetTest>cardgame.*Test</targetTest>
                     </targetTests>
                 </configuration>
-
-
-		<executions>
-		    <execution>
-			<id>pit-report</id>
-			<!-- optional, this example attached the goal into mvn test phase -->
-			<phase>test</phase>
-			<goals>
-			    <goal>mutationCoverage</goal>
-			</goals>
-		    </execution>
-		</executions>
+                <executions>
+                    <execution>
+                        <id>pit-report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>mutationCoverage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Maven Assembly Plugin for exact packaging -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.6.0</version>
+                <executions>
+                    <!-- EXE JAR with source and class files -->
+                    <execution>
+                        <id>make-cards-jar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>cards</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <descriptors>
+                                <descriptor>src/assembly/cards-jar.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                    <!-- ZIP with all code, tests, README -->
+                    <execution>
+                        <id>make-cards-test-zip</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>cardsTest</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <descriptors>
+                                <descriptor>src/assembly/cardsTest-zip.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
