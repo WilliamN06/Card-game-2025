@@ -94,7 +94,7 @@ public class Player extends Thread {
                         e.printStackTrace();
                 }
         }
-
+        //Tries to lock both left and right deck using timeouts and if successful calls performturnAtomic which performs draw-discard action  
         public boolean attemptAtomicTurn() {
                 boolean lockedLeft = false;
                 boolean lockedRight = false;
@@ -116,53 +116,7 @@ public class Player extends Thread {
                         Thread.currentThread().interrupt();
                         return false;
                 } finally {
-<<<<<<< HEAD
-                     if (lockedRight) {
-                         rightDeck.unlock();
-                     }
-                     if (lockedLeft) {
-                         leftDeck.unlock();
-                     }
-                 }
-             }
-
-             private boolean performTurnAtomic() {
-                 if (gameController.isGameOver()) {
-                     return false;
-                 }
-                 if (leftDeck.isEmpty()) {
-                     return false;
-                 }
-
-                 Card drawn = leftDeck.draw();
-                 if (drawn == null) {
-                     return false;
-                 }
-
-                 try {
-                     hand.add(drawn);
-                     Card discarded = selectDiscard(); 
-
-                     hand.remove(discarded);
-                     rightDeck.addCard(discarded);
-
-                     log.println("player " + id + " draws a " + drawn.getDenomination() + " from deck " + leftDeck.getId());
-                     log.println("player " + id + " discards a " + discarded.getDenomination() + " to deck " + rightDeck.getId());
-                     log.println("player " + id + " current hand is " + handToString());
-                     log.flush();
-
-                     return true;
-
-                 } catch (Exception e) {
-                    
-                    log.println("ERROR in turn - rolling back");
-                    leftDeck.addCard(drawn);
-                    hand.remove(drawn);
-                     return false;
-                 }
-             }
-=======
-                        // Always release locks in reverse order
+                       
                         if (lockedRight) {
                                 rightDeck.unlock();
                         }
@@ -172,33 +126,28 @@ public class Player extends Thread {
                 }
         }
 
+        //method for atomic draw discard action and outputting to the according player txt file
         public boolean performTurnAtomic() {
-                // Check game state after acquiring locks
                 if (gameController.isGameOver()) {
                         return false;
                 }
 
-                // Check if left deck is empty
                 if (leftDeck.isEmpty()) {
                         return false;
                 }
 
-                // Perform the draw operation
                 Card drawn = leftDeck.draw();
                 if (drawn == null) {
-                        return false; // No card drawn
+                        return false; 
                 }
 
                 try {
-                        // Add to hand and select discard
                         hand.add(drawn);
-                        Card discarded = selectDiscard(); // This never returns null now
+                        Card discarded = selectDiscard(); 
 
-                        // Remove from hand and add to right deck
                         hand.remove(discarded);
                         rightDeck.addCard(discarded);
 
-                        // Log the successful turn
                         log.println("player " + id + " draws a " + drawn.getDenomination() + " from deck "
                                         + leftDeck.getId());
                         log.println("player " + id + " discards a " + discarded.getDenomination() + " to deck "
@@ -206,17 +155,15 @@ public class Player extends Thread {
                         log.println("player " + id + " current hand is " + handToString());
                         log.flush();
 
-                        return true; // Turn completed successfully
+                        return true; 
 
                 } catch (Exception e) {
-                        // Emergency rollback in case of unexpected errors
                         log.println("ERROR in turn - rolling back");
                         leftDeck.addCard(drawn);
                         hand.remove(drawn);
                         return false;
                 }
         }
->>>>>>> e0b8fb52ce9086040a4a5542c44b3b7808809b18
 
         public Card selectDiscard() {
                 List<Card> nonPreferred = new ArrayList<>();
