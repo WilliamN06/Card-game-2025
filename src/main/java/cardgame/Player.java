@@ -6,6 +6,12 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.TimeUnit;
 
+
+/*
+ Class for player in the card game, child thread class.
+ Each player runs in its own thread, implements their game strategy,
+ and manages its hand of cards. Players draw from left deck first, then discard to right deck.
+ */
 public class Player extends Thread {
         public final int id;
         public final int preferredValue;
@@ -32,7 +38,6 @@ public class Player extends Thread {
         public void setInitialHand(List<Card> cards) {
                 hand.clear();
                 hand.addAll(cards);
-                // log.println("player " + id + " initial hand " + handToString());
         }
 
         public String handToString() {
@@ -57,24 +62,23 @@ public class Player extends Thread {
                 try {
                         log.println("player " + id + " initial hand is " + handToString());
 
-                        // Check if won immediately
                         if (hasWinningHand()) {
                                 gameController.declareWinner(id);
                                 return;
                         }
 
-                        while (!gameController.isGameOver()) {
-                                // Check game state BEFORE acquiring locks
-                                if (gameController.isGameOver())
-                                        break;
+
+                            while (!gameController.isGameOver()) {
+                                if (gameController.isGameOver()) break;
                                 attemptAtomicTurn();
 
-                                // Check win condition AFTER releasing locks
-                                if (hasWinningHand()) {
-                                        gameController.declareWinner(id);
-                                }
-
-                                Thread.sleep(10);// performance
+    
+    
+                            if (hasWinningHand()) {
+                                gameController.declareWinner(id);
+                            }
+                            
+                            Thread.sleep(10);//performance
                         }
                         if (gameController.getWinnerId() == id)
                                 log.println("player " + id + " wins");
@@ -96,25 +100,66 @@ public class Player extends Thread {
                 boolean lockedRight = false;
 
                 try {
-                        // Try to acquire left deck lock with timeout
-                        lockedLeft = leftDeck.tryLock(100, TimeUnit.MILLISECONDS);
-                        if (!lockedLeft) {
-                                return false; // Couldn't get left deck
-                        }
+                    lockedLeft = leftDeck.tryLock(100, TimeUnit.MILLISECONDS);
+                    if (!lockedLeft) {
+                        return false; 
+                    }
+        
+                            lockedRight = rightDeck.tryLock(100, TimeUnit.MILLISECONDS);
+                    if (!lockedRight) {
+                        return false; 
+                    }
 
-                        // Try to acquire right deck lock with timeout
-                        lockedRight = rightDeck.tryLock(100, TimeUnit.MILLISECONDS);
-                        if (!lockedRight) {
-                                return false; // Couldn't get right deck
-                        }
-
-                        // Both locks acquired - perform the atomic turn
-                        return performTurnAtomic();
+                   return performTurnAtomic();
 
                 } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
                         return false;
                 } finally {
+                     if (lockedRight) {
+                         rightDeck.unlock();
+                     }
+                     if (lockedLeft) {
+                         leftDeck.unlock();
+                     }
+                 }
+             }
+
+             private boolean performTurnAtomic() {
+                 if (gameController.isGameOver()) {
+                     return false;
+                 }
+                 if (leftDeck.isEmpty()) {
+                     return false;
+                 }
+
+                 Card drawn = leftDeck.draw();
+                 if (drawn == null) {
+                     return false;
+                 }
+
+                 try {
+                     hand.add(drawn);
+                     Card discarded = selectDiscard(); 
+
+                     hand.remove(discarded);
+                     rightDeck.addCard(discarded);
+
+                     log.println("player " + id + " draws a " + drawn.getDenomination() + " from deck " + leftDeck.getId());
+                     log.println("player " + id + " discards a " + discarded.getDenomination() + " to deck " + rightDeck.getId());
+                     log.println("player " + id + " current hand is " + handToString());
+                     log.flush();
+
+                     return true;
+
+                 } catch (Exception e) {
+                    
+                    log.println("ERROR in turn - rolling back");
+                    leftDeck.addCard(drawn);
+                    hand.remove(drawn);
+                     return false;
+                 }
+             }
                         // Always release locks in reverse order
                         if (lockedRight) {
                                 rightDeck.unlock();
@@ -171,13 +216,12 @@ public class Player extends Thread {
         }
 
         public Card selectDiscard() {
-                // Prefer not to discard preferred value, otherwise random non-preferred
                 List<Card> nonPreferred = new ArrayList<>();
                 for (Card c : hand)
                         if (c.getDenomination() != preferredValue)
                                 nonPreferred.add(c);
 
-                if (nonPreferred.isEmpty()) // all preferred, just discard random
+                if (nonPreferred.isEmpty()) 
                         return hand.get(new Random().nextInt(hand.size()));
 
                 return nonPreferred.get(new Random().nextInt(nonPreferred.size()));

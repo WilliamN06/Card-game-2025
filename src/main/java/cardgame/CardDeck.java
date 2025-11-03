@@ -8,6 +8,12 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.TimeUnit;
 
+/*
+ Thread-safe FIFO container for card objects.
+ Implements fair locking to prevent thread starvation and provides atomic operations for card drawing and addition. 
+Each deck has a unique ID and maintains a queue of cards.
+ */
+
 public class CardDeck {
         public final int id;
         public final Queue<Card> cards = new LinkedList<>();
@@ -22,7 +28,7 @@ public class CardDeck {
         }
 
         public synchronized Card draw() {
-                return cards.poll(); // returns null if empty
+                return cards.poll(); 
         }
 
         public synchronized boolean isEmpty() {
