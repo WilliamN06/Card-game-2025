@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 
 
 /*
- Class for player in the card game, child thread class.
+ Class for player in the card game, child thread class.y
  Each player runs in its own thread, implements their game strategy,
  and manages its hand of cards. Players draw from left deck first, then discard to right deck.
  */
@@ -116,6 +116,7 @@ public class Player extends Thread {
                         Thread.currentThread().interrupt();
                         return false;
                 } finally {
+<<<<<<< HEAD
                      if (lockedRight) {
                          rightDeck.unlock();
                      }
@@ -160,6 +161,7 @@ public class Player extends Thread {
                      return false;
                  }
              }
+=======
                         // Always release locks in reverse order
                         if (lockedRight) {
                                 rightDeck.unlock();
@@ -214,6 +216,7 @@ public class Player extends Thread {
                         return false;
                 }
         }
+>>>>>>> e0b8fb52ce9086040a4a5542c44b3b7808809b18
 
         public Card selectDiscard() {
                 List<Card> nonPreferred = new ArrayList<>();
