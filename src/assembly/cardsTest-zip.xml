@@ -1,0 +1,35 @@
+<assembly>
+    <id>cards-test-zip</id>
+    <formats><format>zip</format></formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <fileSets>
+        <!-- Main classes -->
+        <fileSet>
+            <directory>target/classes</directory>
+            <outputDirectory>classes</outputDirectory>
+        </fileSet>
+        <!-- Test classes -->
+        <fileSet>
+            <directory>target/test-classes</directory>
+            <outputDirectory>test-classes</outputDirectory>
+        </fileSet>
+        <!-- Main sources -->
+        <fileSet>
+            <directory>src/main/java</directory>
+            <outputDirectory>src/main/java</outputDirectory>
+            <includes><include>**/*.java</include></includes>
+        </fileSet>
+        <!-- Test sources -->
+        <fileSet>
+            <directory>src/test/java</directory>
+            <outputDirectory>src/test/java</outputDirectory>
+            <includes><include>**/*.java</include></includes>
+        </fileSet>
+        <!-- README file -->
+        <fileSet>
+            <directory>${project.basedir}</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes><include>README.md</include></includes>
+        </fileSet>
+    </fileSets>
+</assembly>
