@@ -30,7 +30,6 @@ public class Player extends Thread {
                 this.log = new PrintWriter(new BufferedWriter(new FileWriter("player" + id + "_output.txt")), true);
 
         }
-        
 
         public List<Card> getHand() {
                 return hand;
@@ -66,7 +65,7 @@ public class Player extends Thread {
                         if (hasWinningHand()) {
                                 gameController.declareWinner(id);
                                 return;
-                           }
+                        }
 
 
                             while (!gameController.isGameOver()) {
@@ -95,8 +94,8 @@ public class Player extends Thread {
                         e.printStackTrace();
                 }
         }
-        
-        private boolean attemptAtomicTurn() {
+
+        public boolean attemptAtomicTurn() {
                 boolean lockedLeft = false;
                 boolean lockedRight = false;
 
@@ -114,8 +113,8 @@ public class Player extends Thread {
                    return performTurnAtomic();
 
                 } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    return false;
+                        Thread.currentThread().interrupt();
+                        return false;
                 } finally {
                      if (lockedRight) {
                          rightDeck.unlock();
@@ -161,6 +160,60 @@ public class Player extends Thread {
                      return false;
                  }
              }
+                        // Always release locks in reverse order
+                        if (lockedRight) {
+                                rightDeck.unlock();
+                        }
+                        if (lockedLeft) {
+                                leftDeck.unlock();
+                        }
+                }
+        }
+
+        public boolean performTurnAtomic() {
+                // Check game state after acquiring locks
+                if (gameController.isGameOver()) {
+                        return false;
+                }
+
+                // Check if left deck is empty
+                if (leftDeck.isEmpty()) {
+                        return false;
+                }
+
+                // Perform the draw operation
+                Card drawn = leftDeck.draw();
+                if (drawn == null) {
+                        return false; // No card drawn
+                }
+
+                try {
+                        // Add to hand and select discard
+                        hand.add(drawn);
+                        Card discarded = selectDiscard(); // This never returns null now
+
+                        // Remove from hand and add to right deck
+                        hand.remove(discarded);
+                        rightDeck.addCard(discarded);
+
+                        // Log the successful turn
+                        log.println("player " + id + " draws a " + drawn.getDenomination() + " from deck "
+                                        + leftDeck.getId());
+                        log.println("player " + id + " discards a " + discarded.getDenomination() + " to deck "
+                                        + rightDeck.getId());
+                        log.println("player " + id + " current hand is " + handToString());
+                        log.flush();
+
+                        return true; // Turn completed successfully
+
+                } catch (Exception e) {
+                        // Emergency rollback in case of unexpected errors
+                        log.println("ERROR in turn - rolling back");
+                        leftDeck.addCard(drawn);
+                        hand.remove(drawn);
+                        return false;
+                }
+        }
 
         public Card selectDiscard() {
                 List<Card> nonPreferred = new ArrayList<>();
@@ -173,6 +226,5 @@ public class Player extends Thread {
 
                 return nonPreferred.get(new Random().nextInt(nonPreferred.size()));
         }
-
 
 }
