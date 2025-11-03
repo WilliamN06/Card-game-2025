@@ -1,5 +1,9 @@
 package cardgame;
-
+/*
+ Immutable playing card with a non-negative integer value.
+ Thread-safe due to its immutable nature
+ 
+ */
 public class Card {
         public final int denomination;
 

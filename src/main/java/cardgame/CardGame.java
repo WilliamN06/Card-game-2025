@@ -3,6 +3,10 @@ package cardgame;
 import java.io.*;
 import java.util.*;
 
+/*
+ Main game controller. Initializes and manages the card game,handles player input, game setup, thread coordination, and output generation.
+ */
+
 public class CardGame {
         public volatile boolean gameOver = false;
         public volatile int winnerId = -1;
@@ -56,7 +60,6 @@ public class CardGame {
 
         public File getPackFile(Scanner sc) {
                 File file;
-                // add excpetion or such
                 while (true) {
                         System.out.print("Enter path to pack file: ");
                         String path = sc.nextLine().trim();
@@ -94,12 +97,10 @@ public class CardGame {
         }
 
         public void initialiseGame(int n, List<Card> pack) throws IOException {
-                // Create decks
                 for (int i = 1; i <= n; i++) {
                         decks.add(new CardDeck(i));
                 }
 
-                // Create players and link decks in ring topology
                 for (int i = 1; i <= n; i++) {
                         CardDeck left = decks.get(i - 1);
                         CardDeck right = decks.get(i % n);
@@ -107,7 +108,6 @@ public class CardGame {
                         players.add(p);
                 }
 
-                // Distribute cards (round-robin)
                 distributeInitialHands(n, pack);
         }
 
@@ -118,27 +118,23 @@ public class CardGame {
                         throw new IllegalStateException("Not enough cards in deck");
                 }
 
-                // Create lists for each player first
                 List<List<Card>> playerHands = new ArrayList<>();
                 for (int i = 0; i < players.size(); i++) {
                         playerHands.add(new ArrayList<>());
                 }
 
-                // Round-robin distribution: deal one card to each player in sequence, 4 times
                 for (int round = 0; round < 4; round++) {
                         for (int i = 0; i < players.size(); i++) {
                                 if (!it.hasNext())
                                         throw new IllegalStateException("Insufficient cards");
-                                playerHands.get(i).add(it.next()); // Add one card to each player's list
+                                playerHands.get(i).add(it.next()); 
                         }
                 }
 
-                // Now set the initial hands for all players
                 for (int i = 0; i < players.size(); i++) {
                         players.get(i).setInitialHand(playerHands.get(i));
                 }
 
-                // Fill decks with remaining cards
                 int deckIndex = 0;
                 while (it.hasNext()) {
                         decks.get(deckIndex).addCard(it.next());

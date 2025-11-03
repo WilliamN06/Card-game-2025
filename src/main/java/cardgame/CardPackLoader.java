@@ -3,20 +3,13 @@ package cardgame;
 import java.io.*;
 import java.util.*;
 
-/**
- * Handles loading and validation of card packs from text files.
- * Separates file I/O concerns from main game logic.
+/*
+ This class handles loading and validation of card packs from text files.
+Separates the main game logic from file I/O concerns.
  */
 public class CardPackLoader {
 
-        /**
-         * Loads and validates a card pack from the specified file
-         * 
-         * @param filename        Path to the pack file
-         * @param numberOfPlayers Number of players for validation
-         * @return List of Card objects representing the pack
-         * @throws IOException If file cannot be read or is invalid
-         */
+ 
         public static List<Card> loadPack(File file, int numberOfPlayers) throws IOException {
                 if (numberOfPlayers <= 0) {
                         throw new IllegalArgumentException("Number of players must be positive");
@@ -41,12 +34,10 @@ public class CardPackLoader {
                                 lineNumber++;
                                 line = line.trim();
 
-                                // Skip empty lines
                                 if (line.isEmpty()) {
                                         continue;
                                 }
 
-                                // Parse card value
                                 try {
                                         int cardValue = Integer.parseInt(line);
                                         if (cardValue < 0) {
@@ -64,7 +55,6 @@ public class CardPackLoader {
                         throw new IOException("Failed to read pack file: " + e.getMessage(), e);
                 }
 
-                // Validate pack size
                 int expectedSize = 8 * numberOfPlayers;
                 if (pack.size() != expectedSize) {
                         throw new IOException("Invalid pack size: expected " + expectedSize +
@@ -75,9 +65,7 @@ public class CardPackLoader {
                 return pack;
         }
 
-        /**
-         * Prints pack statistics for debugging
-         */
+
         public static void printPackStatistics(List<Card> pack, int numberOfPlayers) {
                 Map<Integer, Integer> frequency = new HashMap<>();
 
